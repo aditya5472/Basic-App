@@ -1,0 +1,116 @@
+When you have a reusable Sequence Generator transformation in several sessions and the sessions run at the same time, use Number of Cached Values to ensure each session receives unique values in the sequence. By default, Number of Cached Values is set to 1000 for reusable Sequence Generators.
+
+#############################
+
+load 10 records in 3 targets in cyclic order
+
+-> Oracle list aggregator ??
+-> The Oracle LISTAGG() function is an aggregation function that transforms data from multiple rows into a single list of values separated by a specified delimiter.
+
+************
+LOAD last N records
+SQ->SG->AGG->ROUTER->TGT
+
+AGG-> MAX(SNO)
+
+ROUTER->MAX(SNO)-N The default port in router will give u the last n records.
+
+*****************
+
+
+REG_REPLACE(PORT_NAME,'[^a-z0-9A-Z]','')  This function retains alphanumeric characters only. -- Extracts only alphanumeric data
+
+Performance Tuning
+Target
+:
+->When bulk loading, the Integration Service bypasses the database log, which speeds performance. Without writing to the database log
+->When you define key constraints or indexes in target tables, you slow the loading of data to those tables. To improve performance, drop indexes and key constraints before you run the session. You can rebuild those indexes and key constraints after the session completes.
+->
+
+Source:
+
+->Optimizing the Query : Queries that contain ORDER BY or GROUP BY clauses may benefit from creating an index on the ORDER BY or GROUP BY columns
+-> if multiple sessions read from the same source simultaneously, the PowerCenter conditional filter may improve performance.
+However, some sessions may perform faster if you filter the source data on the source database. You can test the session with both the database filter and the PowerCenter filter to determine which method improves
+->If you cannot use a filter in the Source Qualifier transformation, use a Filter transformation and move it as close to the Source Qualifier transformation as possible to remove unnecessary data early in the data flow.
+
+Optimizing Mappings :
+->Configure the mapping with the least number of transformations and expressions to do the most amount of work possible. Delete unnecessary links between transformations to minimize the amount of data moved.
+->You can increase performance by eliminating unnecessary datatype conversions. For example, if a mapping moves data from an Integer column to a Decimal column, then back to an Integer column, the unnecessary datatype conversion slows performance
+->
+
+expressions :
+Minimizing Aggregate Function Calls : 
+SUM(COLUMN_A) + SUM(COLUMN_B)
+If you factor out the aggregate function call, as below, the Integration Service adds COLUMN_A to COLUMN_B, then finds the sum of both.
+SUM(COLUMN_A + COLUMN_B)
+->When the Integration Service performs comparisons between CHAR and VARCHAR columns, it slows each time it finds trailing blank spaces in the row
+
+
+==================================================================================================================================
+
+Different type of partition algorithms are available.
+
+Database partitioning : Integration Service generates SQL queries for each database partition and distributes the data . (oracle and DB2)
+
+Round-Robin Partitioning :  Use round-robin partitioning when you need to distribute rows evenly and do not need to group data among partitions.
+
+ Hash Auto-Keys Partitioning :  Integration Service uses all grouped or sorted ports as a compound partition key. You can use hash auto-keys partitioning at or before Rank, Sorter, and unsorted Aggregator transformations to ensure that rows are grouped properly before they enter these transformations.
+
+  Hash User-Keys Partitioning : Integration Service uses a hash function to group rows of data among partitions based on a user-defined partition key. You choose the ports that define the partition key.
+
+  Key Range Partitioning : With this type of partitioning, you specify one or more ports to form a compound partition key for a source or target. The Integration Service then passes data to each partition depending on the ranges you specify for each port.
+
+  Pass-through Partitioning : the Integration Service passes all rows at one partition point to the next partition point without redistributing them.
+
+
+=======================================================
+
+MAPPING PARAMETERS
+
+A mapping parameter represents a constant value that we can define before running a session.
+A mapping parameter retains the same value throughout the entire session.
+SELECT * ‘$$DW_SCHEMA’.Contract WHERE CONTRACT_NUM LIKE ‘ABC%’
+
+
+Unlike mapping parameters, mapping variables are values that can change between sessions.
+The Integration Service saves the latest value of a mapping variable to the repository at the end of each successful session.
+We can override a saved value with the parameter file.
+We can also clear all saved values for the session in the Workflow Manager.
+We might use a mapping variable to perform an incremental read of the source. For example, we have a source table containing time stamped transactions and we want to evaluate the transactions on a daily basis. Instead of manually entering a session override to filter source data each time we run the session, we can create a mapping variable, $$IncludeDateTime. In the source qualifier, create a filter to read only rows whose transaction date equals $$IncludeDateTime
+
+ $ means internal Parameter/Variable (such as $DBConnection prefix or $PMSessionLogDir) whereas $$ are used for user-defined parameters or variables (which could be defined at mapping or workflow/worklet level) 
+
+$ refers Session Parameters like $source,$target.
+
+$$ refers Mapping Parameters like $$State,$$Time.
+
+$$$ refers System Parameters like $$$SessStartTime
+
+
+
+
+
+[Global]
+The global parameter and variable can be used any of the session, worklet or workflow mentioned in that parameter file without repeating them again and again.
+
+Example:
+[Global]
+$$SourceSystem=’Hyderabad’
+$$ETLUSER=’gk1’
+$$LOADTYPE=’Adhoc’
+$DBConnection_Oracle=Scott
+
+*********************
+afte 9 version :
+Now Lookup can be configured as an active transformation - it can return multiple rows on successful match
+Now you can write SQL override on un-cached lookup also. Previously you could do it only on cached lookup
+
+****************error tables**********************
+PMERR_DATA. Stores data and metadata about a transformation row error and its corresponding source row.
+
+PMERR_MSG. Stores metadata about an error and the error message.
+
+PMERR_SESS. Stores metadata about the session.
+
+PMERR_TRANS. Stores metadata about the source and transformation ports, such as name and datatype, when a transformation error occurs.
