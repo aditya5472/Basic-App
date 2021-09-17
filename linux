@@ -1,0 +1,51 @@
+#! /bin/sh
+
+sudo command ?
+ If you prefix “sudo” with any command, it will run that command with elevated privileges or in other words allow a user with proper permissions to execute a command as another user, such as the superuser. This is the equivalent of “run as administrator” option in Windows. The option of sudo lets us have multiple administrators.
+**************************************
+
+
+source : https://www.geeksforgeeks.org/grep-command-in-unixlinux/
+
+sed
+
+SED command in UNIX is for substitution or for find and replace
+eg:
+sed 's/unix/linux/' file.txt
+"s” specifies the substitution operation. The “/” are delimiters. The “unix” is the search pattern and the “linux” is the replacement string.
+
+sed 's/unix/linux/2' geekfile.txt
+Use the /1, /2 etc flags to replace the first, second occurrence of a pattern in a line
+
+
+
+GREP  (globally search for regular expression and print out)
+
+The grep filter searches a file for a particular pattern of characters, and displays all lines that contain that pattern
+
+grep -i "UNix" geekfile.txt
+
+
+
+FIND:
+
+ Search a file with specific name.
+
+find ./GFG -name sample.txt    (It will search for sample.txt in GFG directory.)
+
+find / -name 'file.txt'   (if you know only the filename)
+
+
+Find the newest file if timestamp is appended into the file :
+ls -1| tail -1      (By using -1 it does print one entry per line, then tail -1 will take the last one (i.e. the newest by timestamp).)
+
+HOw to append last in the file 
+
+cat >> file.txt
+(now input ur data )
+
+Call another script from a script :
+. "./script.sh"
+
+
+01HW1904649
