@@ -1,0 +1,22 @@
+system integrates healthcare professional (HCP) and healthcare organization (HCO) data from multiple types of customer data sources such as commercial, medical and clinical etc. to create an aggregated view of HCP, HCO and their relationship data 
+
+Business Process API (Export) is used to extract the HCP, HCO entities and their relation details from EPH, subsequent business transformations and publishing the extracted data in EDB Enterprise customer data set
+
+ easy means for consumers to fetch required customer data per their business use case.
+
+Data ingestion in S3 Landing Bucket:
+The export job queue on EPH (Reltio) generates a JSON extract. The files are then copied to the S3 Landing bucket. The data received is neither transformed nor altered in this step.
+3.	S3 Landing Bucket to S3 Refined Bucket:
+Once the files are available in the S3 Landing Bucket, a Lambda job copies the files from the Landing Bucket folder to the refined bucket folder
+4.	Data Flattening– Refined Bucket:
+AWS Glue job executes a script written in Python (pyspark) to flatten the Json structure to simplify the data structure. Export json files are converted into simplified Parquet files. 
+5.	S3 Refined Bucket Outbound to Athena (Through Crawler)
+Simplified Parquet files are passed as input into a crawler which convert these parquet files into table                      schema and dumps into Athena. Thus, enables query option on the refined zone S3 bucket by utilizing AWS Athena.
+
+#########################
+
+inc to platform team
+talk to amit regarding approval
+unnesecary access removal
+testing standard to amit: 
+
