@@ -1,0 +1,71 @@
+AWS Lambda now supports up to 10 GB of memory and 6 vCPU cores for Lambda Functions
+
+Boto3 makes it easy to integrate your Python application, library, or script with AWS services including Amazon S3, Amazon EC2, Amazon DynamoDB, and more.
+
+A Lambda layer is a . zip file archive that can contain additional code or data. A layer can contain libraries, a custom runtime, data, or configuration files
+
+while craeting lambda, event and ?
+
+dynamic frame in glue ?
+
+
+
+Amazon S3:
+storage class :
+
+S3 Standard is the default storage class if none of the storage class is specified during upload. It is ideal for frequently accessed data because it provides low latency and high availability.
+The durability of 99.999999999% and availability of 99.99% availability over a given year
+
+S3 Standard-Infrequent Access is optimized for long-lived and less frequently accessed data but requires rapid access whenever required.ideal for backups, long-term storage, and as a data store for disaster recovery
+The durability of 99.999999999% and availability of 99.99% availability over a given year
+
+S3 Intelligent-Tiering optimizes costs by automatically moving data to the most cost-effective access tier, without performance impact or operational overhead. It moves objects that have not been accessed for 30 consecutive days to the infrequent access tier. If the object is accessed then it is automatically moved back to the frequent access tier.
+
+S3 One Zone- Infrequent Access is for the data that is accessed less frequently but available for millisecond access.
+ S3 storage class store data in a minimum of 3 Availability Zones (AZ), S3 One Zone-IA stores data in only one AZ which makes the costs 20% lesser than the S3 Standard-IA.good choice for storing secondary backup copies
+
+S3 Glacier is a low-cost storage class for data archiving where data access is infrequent.
+
+The S3 Glacier Deep Archive provides the lowest-cost storage class and supports long-term retention and digital preservation for data that may be accessed only once or twice in a year.Lowest cost storage option in S3
+
+S3 on Outposts provides object storage to on-premises AWS outposts environment.S3 on Outposts will give users 48TB or 96TB of S3 storage capacity, with up 100 buckets on each Outpost
+
+########################################################################################################
+
+A classifier reads the data in a data store. If it recognizes the format of the data, it generates a schema
+
+The crawler writes metadata to the Data Catalog. A table definition contains metadata about the data in your data store. The table is written to a database, which is a container of tables in the Data Catalog. Attributes of a table include classification, which is a label created by the classifier that inferred the table schema.
+
+**********************************************sqs and sns :
+
+Polling inherently introduces some latency in message delivery in SQS unlike SNS where messages are immediately pushed to subscribers
+
+By coupling SNS with SQS, you can receive messages at your pace. It allows clients to be offline, tolerant to network and host failures. You also achieve guaranteed delivery. 
+
+SQS: Messages are persisted for some (configurable) duration if no consumer is available (maximum two weeks), so the consumer does not have to be up when messages are added to queue.
+SNS: No persistence. Whichever consumer is present at the time of message arrival gets the message and the message is deleted. If no consumers are available then the message is lost after a few retries.
+
+You can see SNS as a traditional topic which you can have multiple Subscribers. You can have heterogeneous subscribers for one given SNS topic, including Lambda and SQS, for example. You can also send SMS messages or even e-mails out of the box using SNS. One thing to consider in SNS is only one message (notification) is received at once, so you cannot take advantage from batching.
+
+SQS, on the other hand, is nothing but a queue, where you store messages and subscribe one consumer (yes, you can have N consumers to one SQS queue, but it would get messy very quickly and way harder to manage considering all consumers would need to read the message at least once, so one is better off with SNS combined with SQS for this use case, where SNS would push notifications to N SQS queues and every queue would have one subscriber, only) to process these messages. As of Jun 28, 2018, AWS Supports Lambda Triggers for SQS, meaning you don't have to poll for messages any more.
+
+Furthermore, you can configure a DLQ on your source SQS queue to send messages to in case of failure. In case of success, messages are automatically deleted (this is another great improvement), so you don't have to worry about the already processed messages being read again in case you forgot to delete them manually. I suggest taking a look at Lambda Retry Behaviour to better understand how it works.
+
+One great benefit of using SQS is that it enables batch processing. Each batch can contain up to 10 messages, so if 100 messages arrive at once in your SQS queue, then 10 Lambda functions will spin up (considering the default auto-scaling behaviour for Lambda) and they'll process these 100 messages (keep in mind this is the happy path as in practice, a few more Lambda functions could spin up reading less than the 10 messages in the batch, but you get the idea). If you posted these same 100 messages to SNS, however, 100 Lambda functions would spin up, unnecessarily increasing costs and using up your Lambda concurrency.
+
+However, if you are still running traditional servers (like EC2 instances), you will still need to poll for messages and manage them manually.
+
+You also have FIFO SQS queues, which guarantee the delivery order of the messages. SQS FIFO is also supported as an event source for Lambda as of November 2019
+
+Even though there's some overlap in their use cases, both SQS and SNS have their own spotlight.
+
+Use SNS if:
+
+multiple subscribers is a requirement
+sending SMS/E-mail out of the box is handy
+Use SQS if:
+
+only one subscriber is needed
+batching is important
+
+**********************
