@@ -1,0 +1,169 @@
+catalyst optimizer?
+
+rdd vs df vs dataset
+
+how we can see shuffling of data in our code ?
+
+
+lazy evaluation in Spark means that the execution will not start until an action is triggered.
+Transformations are lazy in nature meaning when we call some operation in RDD, it does not execute immediately. 
+Spark maintains the record of which operation is being called(Through DAG).
+Since transformations are lazy in nature, so we can execute operation any time by calling an action on data. Hence, in lazy evaluation data is not loaded until it is necessary.
+
+
+In MapReduce, we just have two functions (map and reduce), while DAG has multiple levels that form a tree structure. Hence, DAG execution is faster than MapReduce because intermediate results does not write to disk.
+
+In map-reduce, till the completion of the previous job all the jobs block from the beginning. As a result, complex computation can require a long time with small data volume.
+
+While in Spark, a DAG (Directed Acyclic Graph) of consecutive computation stages is formed. In this way, we optimize the execution plan, e.g. to minimize shuffling data around. In contrast, it is done manually in MapReduce by tuning each MapReduce step.
+
+At higher level, we can apply two type of RDD transformations: narrow transformation (e.g. map(), filter() etc.) and wide transformation (e.g. reduceByKey()). Narrow transformation does not require the shuffling of data across a partition, the narrow transformations will group into single stage while in wide transformation the data shuffles. 
+
+When any node crashes in the middle of any operation say O3 which depends on operation O2, which in turn O1. The cluster manager finds out the node is dead and assign another node to continue processing. This node will operate on the particular partition of the RDD and the series of operation that it has to execute (O1->O2->O3).  Now there will be no data loss.
+
+
+
+##########DAG Optimizer###############
+if we submit a spark job which has a map() operation followed by a filter operation. The DAG Optimizer will rearrange the order of these operators since filtering will reduce the number of records to undergo map operation.
+
+Advantages of DAG in Spark
+
+
+The lost RDD can recover using the Directed Acyclic Graph.
+DAG helps to achieve fault tolerance. Thus we can recover the lost data.
+
+
+###################################################
+map :It returns a new RDD by applying a function to each element of the RDD. Function in map can return only one item. 
+flatMap: Similar to map, it returns a new RDD by applying a function to each element of the RDD, but output is flattened.
+###################################################
+
+Below are some basic transformations in Spark:
+map()
+flatMap()
+filter()
+groupByKey()
+reduceByKey()
+sample()
+union()
+distinct()
+****************************************
+
+spark architecture:
+https://towardsdatascience.com/sparksession-vs-sparkcontext-vs-sqlcontext-vs-hivecontext-741d50c9486a
+
+***************************read a file**************************
+
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("how to read csv file").getOrCreate()
+df = spark.read.csv('data/sample_data.csv')
+***************************************************************
+concat 2 cols :
+
+import pyspark
+from pyspark.sql import functions as sf
+
+df = df.withColumn('joined_column', sf.concat(sf.col('colname1'),sf.lit('_'), sf.col('colname2')))
+
+***************writing a file**************
+df.coalesce(1).write.csv(sys.env("HOME")+ "/Documents/tmp/one-file-coalesce")
+
+**********drop null**********
+
+df.na.drop("all")  (drop row if all col have null)
+df.na.drop("any")   (Drop Rows with NULL Values in Any Columns)
+df.na.drop(subset=["population","type"])     (The above example remove rows that have NULL values on population and type selected columns.)
+
+*********************join 2 df
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"inner") \
+     .show(truncate=False)
+
+###########################################
+
+>>> from pyspark.sql.window import Window
+>>> from pyspark.sql.functions import row_number
+
+>>> newDF4 = sampleDF.withColumn("row_number", row_number().over(Window.partitionBy("id", "name").orderBy("id"))).where("row_number = 1").sort("id").select("id", "name")
+>>> newDF4.show()
++---+-----+
+| id| name|
++---+-----+
+|  1|Scott|
+|  2|Tiger|
+|  3| Jane|
+|  4|Jenny|
+|  5| Judy|
++---+-----+
+
+************************************************* broadcast joins*********************
+
+Spark broadcast joins are perfect for joining a large DataFrame with a small DataFrame.
+Broadcast joins cannot be used when joining two large DataFrames.
+Spark splits up data on different nodes in a cluster so multiple computers can process data in parallel. Traditional joins are hard with Spark because the data is split.
+Broadcast joins are easier to run on a cluster. Spark can “broadcast” a small DataFrame by sending all the data in that small DataFrame to all nodes in the cluster. After the small DataFrame is broadcasted, Spark can perform a join without shuffling any of the data in the large DataFrame.
+peopleDF.join(
+  broadcast(citiesDF),
+  peopleDF("city") <=> citiesDF("city")
+).show()
+
+The Spark null safe equality operator (<=>) is used to perform this join.
+
+***********************
+
+difference between "order by" and "sort by" is that the former guarantees total order in the output while the latter only guarantees ordering of the rows within a reducer. If there are more than one reducer, "sort by" may give partially ordered final results.
+
+************
+The SparkContext is used by the Driver to establish a communication with the cluster and the resource managers in order to coordinate and execute jobs.
+SparkSession gives developers immediate access to SparkContext,  The entry point to programming Spark 
+
+
+*******************impetus*************************************
+
+import pyspark
+from pyspark import sparksession
+
+from pyspark.sql import function as func
+
+spark = sparksession.builder.appname('Import_csv_File').getorcreate()
+
+df_input = spark.read.csv(file_location/filename.csv)
+
+df_input = df_input.select("Id").na.(how='all')
+
+df_input = df_input.withcolumn("fullname").func.col.concat(func.col("first_name"), func.lit('_'), func.col(last_name))
+
+df_input = df_input.select(ssn).
+
+
+df_input = df_input.coalesce(1).write.parquet('output_path')
+
+
+Create Index index_name on table_name (col_name)
+
+
+table A is emp
+emp_Id, name, age, sal
+
+table B is dept
+dept_id , emp_id, dept_name 
+
+
+emp id, name, dept_id (1, 2, 3)
+1	aditya
+
+select A.emp_id, A.name, list_agg(B.dept_id) partition by (emp_id) from emp A
+join dept B
+on A.emp_id = B.emp_id
+where A.emp_id = 1
+
+
+
+import boto3
+s3 = boto3.resource('s3')
+obj = s3.Object(bucketname, itemname)
+body = obj.get()['Body'].read()
+
+
+from pyspark.sql.window import Window
+from pyspark.sql.functions import rwo_number()
+
