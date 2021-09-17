@@ -1,0 +1,292 @@
+##################
+program to reverse a no. using loops
+program to count upper case and lower case letters in a string
+####################
+ program to write fibonaci series
+
+nterms = int(input("How many terms? "))
+
+n1, n2 = 0, 1
+count = 0
+
+
+if nterms <= 0:
+   print("Please enter a positive integer")
+
+elif nterms == 1:
+   print("Fibonacci sequence upto",nterms,":")
+   print(n1)
+
+else:
+   print("Fibonacci sequence:")
+   while count < nterms:
+       print(n1)
+       nth = n1 + n2
+       # update values
+       n1 = n2
+       n2 = nth
+       count += 1
+
+########################################
+
+memory management ?
+Memory management in Python involves a private heap containing all Python objects and data structures. The management of this private heap is ensured internally by the Python memory manager.
+
+why tuple is faster than list ?
+Tuples are stored in a single block of memory. Tuples are immutable so, It doesn't require extra space to store new objects. ... It is the reason creating a tuple is faster than List. It also explains the slight difference in indexing speed is faster than lists, because in tuples for indexing it follows fewer pointers.
+
+
+##################Write code to count files in a folder################################
+import os
+
+APP_FOLDER = 'C:/Positronx/Python/Scripts/'
+
+totalFiles = 0
+totalDir = 0
+
+for base, dirs, files in os.walk(APP_FOLDER):
+    print('Searching in : ',base)
+    for directories in dirs:
+        totalDir += 1
+    for Files in files:
+        totalFiles += 1
+
+
+print('Total number of files',totalFiles)
+print('Total Number of directories',totalDir)
+print('Total:',(totalDir + totalFiles))
+########################################
+
+, get the number of words in paragraph and letters in a paragram
+
+SAMPLE.TXT
+-------------
+Hello World
+Hello Again
+Goodbye
+--------------
+file = open("sample.txt", "r")
+
+number_of_lines = 0
+number_of_words = 0
+number_of_characters = 0
+for line in file:
+  line = line.strip("\n")            #won't count \n as character
+
+  words = line.split()
+  number_of_lines += 1
+  number_of_words += len(words)
+  number_of_characters += len(line)
+
+file.close()
+
+print("lines:", number_of_lines, "words:", number_of_words, "characters:", number_of_characters)
+-------------
+lines: 3 words: 5 characters: 29
+#################################################################
+
+Mount storage account to filesystem
+
+###################
+A namespace is basically a system to make sure that all the names in a program are unique and can be used without any conflict.
+***************************
+
+Identity operators are used to compare the objects, not if they are equal, but if they are actually the same object, with the same memory location:
+*****************************************************
+weekdays = ['sun','mon','tue','wed','thu','fri','sun','mon','mon']
+output: [['sun', 2],['mon', 3],['tue', 1],['wed', 1],['thu', 1],   ['fri', 1]]
+
+weekdays = ['sun','mon','tue','wed','thu','fri','sun','mon','mon']
+print([[x,weekdays.count(x)] for x in set(weekdays)])
+**********************
+data types in python ?
+mutable and immutable ?
+
+******************************************
+is , is not
+*******************************
+https://www.geeksforgeeks.org/python-list-exercise/
+*****************************************
+Python program to interchange first and last elements in a list
+l = [12, 4, 56, 8, 34]
+size = len(l)
+temp = l[0]
+l[0] = l[size-1]
+l[size-1] = temp
+print(l)
+*****************************************
+Python program to swap two elements in a list
+l = [12, 4, 56, 8, 34]
+l[0], l[1] = l[1], l[0]
+print(l)
+*****************************************
+Python – Swap elements in String list
+test_list = ['Gfg', 'is', 'best', 'for', 'Geeks']
+res = [sub.replace('G', '-').replace('e', 'G').replace('-', 'e') for sub in test_list]
+print (res)
+*****************************************
+
+***************print in sequece : [0, 0, 0,1,1,1,2,2,2]
+
+my_list = [-15, -26, 15, 1, 23, -64, 23, 76]
+new_list = []
+
+while my_list:
+    min = my_list[0]  
+    for x in my_list: 
+        if x < min:
+            min = x
+    new_list.append(min)
+    my_list.remove(min)    
+
+print(new_list)
+
+**************************count no. of words in a string
+x = 'Online Python compiler (interpreter) to run Python online, Write Python 3 code in this online editor and run it.'
+
+x = x.split()
+wor = 'Python'
+
+count = 0
+
+for i in x:
+    if i == wor:
+        count += 1
+print(count)
+
+*******************************convert a CSV to JSON
+
+import csv
+import json
+ 
+ 
+def make_json(csvFilePath, jsonFilePath):
+     
+    
+    data = {}
+     
+    
+    with open(csvFilePath, encoding='utf-8') as csvf:
+        csvReader = csv.DictReader(csvf)
+         
+        
+        for rows in csvReader:
+             
+          
+            key = rows['No']
+            data[key] = rows
+ 
+
+    with open(jsonFilePath, 'w', encoding='utf-8') as jsonf:
+        jsonf.write(json.dumps(data, indent=4))
+         
+csvFilePath = r'Names.csv'
+jsonFilePath = r'Names.json'
+ 
+
+make_json(csvFilePath, jsonFilePath)
+
+*****************
+
+Yield are used in Python generators. A generator function is defined like a normal function, but whenever it needs to generate a value, it does so with the yield keyword rather than return. If the body of a def contains yield, the function automatically becomes a generator function
+
+extend() method takes an iterable such as list, tuple, string etc.
+***************
+a generator is a function that returns an object (iterator) which we can iterate over (one value at a time).
+
+If a function contains at least one yield statement , it becomes a generator function. Both yield and return will return some value from a function.
+
+The difference is that while a return statement terminates a function entirely, yield statement pauses the function saving all its states and later continues from there on successive calls.
+
+*******************************************
+
+
+Input = [[1,2], [3, 4], [5,6,7], [8,9], 10]
+Output= [1,2,3,4,5,6,7,8,9,10]
+
+**************************
+
+li = [15, 231, 13, 78, 106]
+sort it 
+
+**************
+
+get unique values from list without using set
+
+
+# using list comprehension
+# to remove duplicated 
+# from list 
+res = []
+[res.append(x) for x in test_list if x not in res]
+
+
+*********************************
+
+
+
+class Person:
+"This is a person class"
+def __init__(self, age):
+self.age = age
+
+
+
+def greet(self):
+print('Hello')
+
+s1 = Person(10)
+s2 = Person(20)
+s3 = s1 + s2
+
+print (s3.age)
+
+*****************************
+
+class Person:
+"This is a person class"
+def __init__(self, age):
+self.age = age
+
+def greet(self):
+print('Hello')
+
+print(Person.greet)
+
+******************************
+x = "abcdef"
+i = "a"
+for i in x:
+print('i', end = " ")
+
+**************************
+
+x = "abcdef"
+i = "a"
+while i in x:
+print( 'i' , end = " " )
+
+******************
+
+s = 'Hello World'
+print(s[:-1])
+
+***********
+
+List=[1,6,8,4,5]
+print(List[-4:2])
+
+****************
+List=[1,6,8,4,5]
+print List[-4:]
+
+***************
+how to get user input of list of lists in python
+lst = [ ] 
+n = int(input("Enter number of elements : ")) 
+  
+for i in range(0, n): 
+    ele = [input(), int(input())] 
+    lst.append(ele) 
+      
+print(lst)
